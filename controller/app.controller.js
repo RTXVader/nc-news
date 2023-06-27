@@ -4,6 +4,6 @@ exports.getTopics = (req, res) => {
     
     return gettingTopics().then((topics) => {
        
-     return   res.status(200).send(topics)
+     return   res.status(200).send({ topics: topics})
     })
 }
