@@ -6,8 +6,5 @@ exports.getTopics = (req, res) => {
   });
 };
 exports.getDescriptions = (req, res) => {
-  console.log("controller");
-
-
   return res.status(200).send({ description: endpoints });
 };
