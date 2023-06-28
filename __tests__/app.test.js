@@ -55,7 +55,7 @@ describe("GET /api", () => {
 describe("GET /api/articles/:article_id", () => {
   it("200: should return an article object by its ID", () => {
     return request(app)
-      .get('/api/articles/5')
+      .get("/api/articles/5")
       .expect(200)
       .then(({ body }) => {
         const { article } = body;
@@ -69,12 +69,15 @@ describe("GET /api/articles/:article_id", () => {
         expect(article).toHaveProperty("article_img_url", expect.any(String));
       });
   });
-  it('400: responds with bad request for an invalid article_id', () => {
-      return request(app)
-        .get('/api/articles/apple')
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe('Bad Request')
-        })
-  })
+  it("400: responds with bad request for an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/apple")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("404: if article does not exist", () => {
+    return request(app).get("/api/apple").expect(404);
+  });
 });

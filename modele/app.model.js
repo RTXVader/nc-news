@@ -8,8 +8,10 @@ exports.gettingTopics = () => {
   });
 };
 exports.gettingArticles = (article_id) => {
-  const query = "SELECT * FROM articles WHERE article_id = $1;";
+  if (article_id) {const query = "SELECT * FROM articles WHERE article_id = $1;";
   return db.query(query, [article_id]).then((result) => {
     return result.rows[0];
   });
+}
+return Promise.reject({ status: 404, msg: 'custom error'})
 };
