@@ -47,8 +47,34 @@ describe("GET /api", () => {
       .get("/api")
       .expect(200)
       .then(({ body }) => {
-        console.log(body);
         expect(body).toEqual({ description: endpoints });
       });
   });
+});
+
+describe("GET /api/articles/:article_id", () => {
+  it("200: should return an article object by its ID", () => {
+    return request(app)
+      .get('/api/articles/5')
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toHaveProperty("author", expect.any(String));
+        expect(article).toHaveProperty("title", expect.any(String));
+        expect(article).toHaveProperty("article_id", 5);
+        expect(article).toHaveProperty("body", expect.any(String));
+        expect(article).toHaveProperty("topic", expect.any(String));
+        expect(article).toHaveProperty("created_at", expect.any(String));
+        expect(article).toHaveProperty("votes", expect.any(Number));
+        expect(article).toHaveProperty("article_img_url", expect.any(String));
+      });
+  });
+  it('400: responds with bad request for an invalid article_id', () => {
+      return request(app)
+        .get('/api/articles/apple')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad Request')
+        })
+  })
 });
