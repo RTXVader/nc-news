@@ -81,3 +81,55 @@ describe("GET /api/articles/:article_id", () => {
     return request(app).get("/api/apple").expect(404);
   });
 });
+describe("GET /api/articles", () => {
+  it("200: should return an array", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true);
+      });
+  });
+  it("200: responds with an array of all topics", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(13);
+      });
+  });
+  it("200: each object inside the array should have the valid properties", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body, 'body')
+        
+        const { articles } = body;
+        console.log(articles, 'articles')
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+          expect(article).not.toHaveProperty('body');
+     
+        });
+      });
+  });
+  it("200: responds with an array of objects sorted by default value of date in descending order", () => {
+    return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({body}) => {
+          const { articles } = body
+            expect(articles).toBeSortedBy("created_at", {descending: true})
+        })
+  });
+});
