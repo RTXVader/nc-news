@@ -13,5 +13,5 @@ exports.gettingArticles = (article_id) => {
     return result.rows[0];
   });
 }
-return Promise.reject({ status: 404, msg: 'custom error'})
+return Promise.reject({ status: 404, msg: 'Bad Request'})
 };
