@@ -105,10 +105,10 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, 'body')
-        
+        console.log(body, "body");
+
         const { articles } = body;
-        console.log(articles, 'articles')
+        console.log(articles, "articles");
         articles.forEach((article) => {
           expect(article).toHaveProperty("author", expect.any(String));
           expect(article).toHaveProperty("title", expect.any(String));
@@ -118,18 +118,56 @@ describe("GET /api/articles", () => {
           expect(article).toHaveProperty("votes", expect.any(Number));
           expect(article).toHaveProperty("article_img_url", expect.any(String));
           expect(article).toHaveProperty("comment_count", expect.any(String));
-          expect(article).not.toHaveProperty('body');
-     
+          expect(article).not.toHaveProperty("body");
         });
       });
   });
   it("200: responds with an array of objects sorted by default value of date in descending order", () => {
     return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(({body}) => {
-          const { articles } = body
-            expect(articles).toBeSortedBy("created_at", {descending: true})
-        })
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
+describe("GET /api/articles/:article_id/comments", () => {
+  it("200: should return an array of comments", () => {
+    return request(app)
+      .get("/api/articles/5/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+      expect(Array.isArray(comments)).toBe(true); 
+      
+     
+      });
+  });
+  it("200: returns all the comments", () => {
+    return request(app)
+      .get("/api/articles/5/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toHaveLength(2);
+      });
+  });
+  it("200: should return an array of comments", () => {
+    return request(app)
+      .get("/api/articles/5/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        comments.forEach((comment) => { 
+        expect(comment).toHaveProperty("comment_id", expect.any(Number));
+        expect(comment).toHaveProperty("votes", expect.any(Number));
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+        expect(comment).toHaveProperty("author", expect.any(String));
+        expect(comment).toHaveProperty("body", expect.any(String));
+        expect(comment).toHaveProperty("article_id", expect.any(Number));
+        
+        });
+      });
   });
 });

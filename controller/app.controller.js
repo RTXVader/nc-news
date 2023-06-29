@@ -1,4 +1,4 @@
-const { gettingTopics, gettingArticlesId, gettingArticles } = require("../modele/app.model");
+const { gettingTopics, gettingArticlesId, gettingArticles, gettingCommentsByArticleId } = require("../modele/app.model");
 const endpoints = require("../endpoints.json");
 const { articleData } = require("../db/data/test-data");
 exports.getTopics = (req, res) => {
@@ -21,6 +21,17 @@ exports.getArticles = (req, res, next) => {
     
     return gettingArticles(sort_by, order, category_id).then((articles) => {
       return res.status(200).send({ articles: articles });
+    })
+    .catch(next)
+}
+exports.getCommentsByArticleId = (req, res, next) => {
+    const { article_id } = req.params
+
+    console.log('controller')
+    console.log(article_id, 'article_id')
+    return gettingCommentsByArticleId(article_id).then((comments) => {
+        console.log(comments)
+      return res.status(200).send({ comments: comments });
     })
     .catch(next)
 }
