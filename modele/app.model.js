@@ -54,17 +54,34 @@ exports.gettingArticles = (category_id, sort_by = "created_at", order = "DESC") 
   });
 };
 exports.gettingCommentsByArticleId = (article_id) => {
+  
+  const articleQuery = `
+    SELECT EXISTS (
+      SELECT *
+      FROM articles
+      WHERE article_id = $1
+    );
+  `;
+  
+
   const query = `
     SELECT *
     FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC;
   `;
-  console.log(query, 'query')
-  console.log(article_id, 'query values')
 
-  return db.query(query, [article_id]).then((result) => {
-    console.log(result.rows,'return')
-    return result.rows;
+  return db.query(articleQuery, [article_id]).then(({ rows }) => {
+    const articleExists = rows[0].exists;
+    if (!articleExists) {
+      return Promise.reject({
+        status: 404,
+        msg: 'Not Found',
+      });
+    }
+
+    return db.query(query, [article_id]).then(({ rows }) => {
+      return rows;
+    });
   });
 };

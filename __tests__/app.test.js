@@ -140,8 +140,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       .then(({ body }) => {
         const { comments } = body;
       expect(Array.isArray(comments)).toBe(true); 
-      
-     
       });
   });
   it("200: returns all the comments", () => {
@@ -153,7 +151,7 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(comments).toHaveLength(2);
       });
   });
-  it("200: should return an array of comments", () => {
+  it("200: should return an array of comments with valid properties", () => {
     return request(app)
       .get("/api/articles/5/comments")
       .expect(200)
@@ -166,8 +164,34 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(comment).toHaveProperty("author", expect.any(String));
         expect(comment).toHaveProperty("body", expect.any(String));
         expect(comment).toHaveProperty("article_id", expect.any(Number));
-        
         });
       });
   });
-});
+  it('200: valid id but no comments respond with an empty array of comments', () => {
+    return request(app)
+      .get('/api/articles/2/comments')
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        
+        expect(comments).toHaveLength(0)
+      })
+      })
+      it("400: returns bad request when invalid ID", () => {
+        return request(app)
+          .get("/api/articles/'apple'/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Bad Request");
+          })
+      });
+      it("404: returns Not Found error when invalid ID does not exist", () => {
+        return request(app)
+          .get("/api/articles/9090/comments")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Not Found");
+          })
+      });
+  })
+

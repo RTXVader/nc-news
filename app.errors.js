@@ -5,5 +5,12 @@ exports.handlePsqlErrors = (err, req, res, next) => {
 };
 
 exports.handleDefaultErrors = (err, req, res, next) => {
-  res.status(500).send({ msg: "Unknown Error" });
-};
+    if (err.status) {
+        res.status(err.status).send({ msg: err.msg });
+      } else next(err);
+    }
+
+exports.handleServerErrors = (err, req, res, next) => {
+       
+        res.status(500).send({ msg: 'Internal Server Error' });
+      };
