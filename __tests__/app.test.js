@@ -194,7 +194,7 @@ describe("GET /api/articles/:article_id/comments", () => {
 });
 
 describe("POST /api/articles/:article_id/comments", () => {
-  it.only("201: should add a comment for an article", () => {
+  it("201: should add a comment for an article", () => {
     return request(app)
       .post("/api/articles/5/comments")
       .send({ username: "butter_bridge", body: "apple" })
