@@ -41,3 +41,17 @@ exports.getCommentsByArticleId = (req, res, next) => {
     })
     .catch(next);
 };
+exports.postComments = (req, res, next) => {
+    const { article_id } = req.params
+    const { username, body } = req.body;
+    console.log(username, 'username')
+    console.log(article_id, 'article id')
+    console.log( body, 'body')
+    console.log('controller')
+    return postingComments(article_id, username, body)
+    .then((comment) => {
+        console.log(comment, 'comment')
+      res.status(201).send({ comment });
+    })
+    .catch(next);
+};
