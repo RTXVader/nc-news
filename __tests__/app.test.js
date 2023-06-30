@@ -155,6 +155,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(200)
       .then(({ body }) => {
         const { comments } = body;
+        expect(comments).toHaveLength(2)
         comments.forEach((comment) => {
           expect(comment).toHaveProperty("comment_id", expect.any(Number));
           expect(comment).toHaveProperty("votes", expect.any(Number));
@@ -162,6 +163,7 @@ describe("GET /api/articles/:article_id/comments", () => {
           expect(comment).toHaveProperty("author", expect.any(String));
           expect(comment).toHaveProperty("body", expect.any(String));
           expect(comment).toHaveProperty("article_id", expect.any(Number));
+          
         });
       });
   });
@@ -232,7 +234,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   it("404: returns NotFound when invalid username", () => {
     return request(app)
       .post("/api/articles/5/comments")
-      .send({ username: ' ', body: "apple" })
+      .send({ username: 'hi', body: "apple" })
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Not Found");
