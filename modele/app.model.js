@@ -75,6 +75,7 @@ exports.gettingCommentsByArticleId = (article_id) => {
 
   return db.query(articleQuery, [article_id]).then(({ rows }) => {
     const articleExists = rows[0].exists;
+    console.log(articleExists)
     if (!articleExists) {
       return Promise.reject({
         status: 404,
