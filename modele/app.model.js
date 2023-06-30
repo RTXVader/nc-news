@@ -16,7 +16,11 @@ exports.gettingArticlesId = (article_id) => {
   }
   return Promise.reject({ status: 404, msg: "Bad Request" });
 };
-exports.gettingArticles = (category_id, sort_by = "created_at", order = "DESC") => {
+exports.gettingArticles = (
+  category_id,
+  sort_by = "created_at",
+  order = "DESC"
+) => {
   const greenList = [
     "author",
     "title",
@@ -54,7 +58,6 @@ exports.gettingArticles = (category_id, sort_by = "created_at", order = "DESC") 
   });
 };
 exports.gettingCommentsByArticleId = (article_id) => {
-  
   const articleQuery = `
     SELECT EXISTS (
       SELECT *
@@ -62,7 +65,6 @@ exports.gettingCommentsByArticleId = (article_id) => {
       WHERE article_id = $1
     );
   `;
-  
 
   const query = `
     SELECT *
@@ -76,7 +78,7 @@ exports.gettingCommentsByArticleId = (article_id) => {
     if (!articleExists) {
       return Promise.reject({
         status: 404,
-        msg: 'Not Found',
+        msg: "Not Found",
       });
     }
 
