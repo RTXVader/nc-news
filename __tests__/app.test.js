@@ -105,10 +105,8 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        console.log(body, "body");
-
         const { articles } = body;
-        console.log(articles, "articles");
+
         articles.forEach((article) => {
           expect(article).toHaveProperty("author", expect.any(String));
           expect(article).toHaveProperty("title", expect.any(String));
@@ -139,7 +137,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(200)
       .then(({ body }) => {
         const { comments } = body;
-      expect(Array.isArray(comments)).toBe(true); 
+        expect(Array.isArray(comments)).toBe(true);
       });
   });
   it("200: returns all the comments", () => {
@@ -157,41 +155,98 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(200)
       .then(({ body }) => {
         const { comments } = body;
-        comments.forEach((comment) => { 
-        expect(comment).toHaveProperty("comment_id", expect.any(Number));
-        expect(comment).toHaveProperty("votes", expect.any(Number));
-        expect(comment).toHaveProperty("created_at", expect.any(String));
-        expect(comment).toHaveProperty("author", expect.any(String));
-        expect(comment).toHaveProperty("body", expect.any(String));
-        expect(comment).toHaveProperty("article_id", expect.any(Number));
+        expect(comments).toHaveLength(2)
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("article_id", expect.any(Number));
+          
         });
       });
   });
-  it('200: valid id but no comments respond with an empty array of comments', () => {
+  it("200: valid id but no comments respond with an empty array of comments", () => {
     return request(app)
-      .get('/api/articles/2/comments')
+      .get("/api/articles/2/comments")
       .expect(200)
       .then(({ body }) => {
         const { comments } = body;
-        expect(Array.isArray(comments)).toBe(true); 
-        expect(comments).toHaveLength(0)
-      })
-      })
-      it("400: returns bad request when invalid ID", () => {
-        return request(app)
-          .get("/api/articles/'apple'/comments")
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request");
-          })
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments).toHaveLength(0);
       });
-      it("404: returns Not Found error when invalid ID does not exist", () => {
-        return request(app)
-          .get("/api/articles/9090/comments")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Not Found");
-          })
+  });
+  it("400: returns bad request when invalid ID", () => {
+    return request(app)
+      .get("/api/articles/'apple'/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
-  })
+  });
+  it("404: returns Not Found error when invalid ID does not exist", () => {
+    return request(app)
+      .get("/api/articles/9090/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+});
 
+describe("POST /api/articles/:article_id/comments", () => {
+  it("201: should add a comment for an article", () => {
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send({ username: "butter_bridge", body: "apple" })
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+
+        expect(comment).toHaveProperty("comment_id", expect.any(Number));
+        expect(comment).toHaveProperty("votes", expect.any(Number));
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+        expect(comment).toHaveProperty("author", "butter_bridge");
+        // expect(comment).toHaveProperty('username', 'John');
+        expect(comment).toHaveProperty("body", "apple");
+        expect(comment).toHaveProperty("article_id", expect.any(Number));
+      });
+  });
+  it("404: should return Not Found if article does not exist", () => {
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send({ username: "butter_bridge", body: "apple" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  it("400: returns bad request when invalid ID", () => {
+    return request(app)
+      .post("/api/articles/'apple'/comments")
+      .send({ username: "butter_bridge", body: "apple" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  it("404: returns NotFound when invalid username", () => {
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send({ username: 'hi', body: "apple" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  it("400: returns bad request when invalid username and body keys", () => {
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send({notusername: "butter_bridge", notbody: "valid text"})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});

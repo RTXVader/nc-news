@@ -75,7 +75,7 @@ exports.gettingCommentsByArticleId = (article_id) => {
 
   return db.query(articleQuery, [article_id]).then(({ rows }) => {
     const articleExists = rows[0].exists;
-    console.log(articleExists)
+   
     if (!articleExists) {
       return Promise.reject({
         status: 404,
@@ -88,3 +88,25 @@ exports.gettingCommentsByArticleId = (article_id) => {
     });
   });
 };
+exports.postingComments = (article_id, username, body) => {
+  
+
+  
+  const query = `
+    INSERT INTO comments (article_id, author, body)
+    VALUES ($1, $2, $3)
+    RETURNING *;
+  `;
+  
+
+ 
+
+return db.query(query, [article_id, username, body])
+    .then(({ rows }) => {
+ 
+
+      return rows[0]
+    });
+ 
+};
+
