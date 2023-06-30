@@ -89,13 +89,7 @@ exports.gettingCommentsByArticleId = (article_id) => {
   });
 };
 exports.postingComments = (article_id, username, body) => {
-  const articleQuery = `
-  SELECT EXISTS (
-    SELECT *
-    FROM articles
-    WHERE article_id = $1
-  );
-`;
+  
 
   
   const query = `
@@ -103,30 +97,16 @@ exports.postingComments = (article_id, username, body) => {
     VALUES ($1, $2, $3)
     RETURNING *;
   `;
-// console.log('model')
-// console.log(article_id, 'article id in model')
-// console.log(username, 'username in model')
-// console.log(body, 'body in model')
-// console.log(query, 'query')
   
-return db.query(articleQuery, [article_id]).then(({ rows }) => {
-  const articleExists = rows[0].exists;
+
  
-  if (!articleExists) {
-    return Promise.reject({
-      status: 404,
-      msg: "Not Found",
-    });
-  }
+
 return db.query(query, [article_id, username, body])
     .then(({ rows }) => {
-      console.log(rows, 'rows')
-      console.log(rows[0], 'row object')
-//       console.log(result, 'result')
-//       console.log(result.row, 'result row')
-//  console.log(result.row[0], 'result row')
+ 
+
       return rows[0]
     });
-  })
+ 
 };
 

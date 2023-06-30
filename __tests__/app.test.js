@@ -229,4 +229,22 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+  it("404: returns NotFound when invalid username", () => {
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send({ username: ' ', body: "apple" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  it("400: returns bad request when invalid username and body keys", () => {
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send({notusername: "butter_bridge", notbody: "valid text"})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 });
