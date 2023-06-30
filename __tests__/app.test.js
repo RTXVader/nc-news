@@ -3,7 +3,8 @@ const request = require("supertest");
 const data = require("../db/data/test-data/index");
 const seed = require("../db/seeds/seed");
 const endpoints = require("../endpoints.json");
-
+const db = require("../db/connection");
+afterAll(()=> db.end())
 beforeEach(() => {
   return seed(data);
 });
@@ -250,3 +251,54 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe('PATCH /api/articles/:article_id', () => {
+  it('200: should update the article votes', () => {
+    return request(app)
+    .patch('/api/articles/5')
+    .send({ inc_votes: 5})
+    .expect(200)
+    .then(({ body }) => {
+      const { article } = body
+      expect(article.votes).toBe(5);
+    });
+  })
+  it('200: should update the article votes with a negative inc votes', () => {
+    return request(app)
+    .patch('/api/articles/5')
+    .send({ inc_votes: -5})
+    .expect(200)
+    .then(({ body }) => {
+      const { article } = body
+      expect(article.votes).toBe(-5);
+    });
+  })
+  it('400: return bad request for invalid id', () => {
+    return request(app)
+    .patch('/api/articles/"apple"')
+    .send({ inc_votes: 5})
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe('Bad Request');
+    });
+  })
+  it('400: return Bad Request when put in invalid data type', () => {
+    return request(app)
+    .patch('/api/articles/5')
+    .send({ inc_votes: 'lop'})
+    .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+      
+  })
+  it("404: should return Not Found if article does not exist", () => {
+    return request(app)
+      .patch("/api/articles/587")
+      .send({ inc_votes: 5 })
+      .expect(404)
+      .then(({ body }) => {
+        
+        expect(body.msg).toBe("Not Found");
+      });
+})
+})

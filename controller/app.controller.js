@@ -4,6 +4,7 @@ const {
   gettingArticles,
   gettingCommentsByArticleId,
   postingComments,
+  patchingArticleVotes
 } = require("../modele/app.model");
 const endpoints = require("../endpoints.json");
 const { articleData } = require("../db/data/test-data");
@@ -54,3 +55,18 @@ exports.postComments = (req, res, next) => {
     )
        
 };
+exports.patchArticleVotes = (req, res, next) => {
+    const { article_id } = req.params;
+    const { inc_votes } = req.body;
+  
+   
+  console.log('controller')
+  console.log( article_id, 'articleid')
+  console.log(inc_votes, 'incvotes')
+    return patchingArticleVotes(article_id, inc_votes)
+      .then((article) => {
+        
+        res.status(200).send({ article });
+      })
+      .catch(next);
+  };
