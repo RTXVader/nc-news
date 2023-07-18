@@ -371,11 +371,12 @@ describe('GET /api/articles (queries)', () => {
       .then(({ body }) => {
         const { articles } = body;
         expect(Array.isArray(articles)).toBe(true);
-        
-        const votes = articles.map((article) => article.votes);
-        expect(votes).toEqual([...votes].sort((a, b) => b - a)); // Ensure descending order
+  
+        // const articleVotes = articles.map((article) => article.votes);
+        expect(articles).toBeSortedBy("votes", { descending: true });
       });
   });
+  
 
   it('200: should return articles sorted in ascending order', () => {
     return request(app)
@@ -385,8 +386,8 @@ describe('GET /api/articles (queries)', () => {
         const { articles } = body;
         expect(Array.isArray(articles)).toBe(true);
         
-        const votes = articles.map((article) => article.votes);
-        expect(votes).toEqual([...votes].sort((a, b) => a - b)); // Ensure ascending order
+        // const votes = articles.map((article) => article.votes);
+        expect(articles).toBeSortedBy("votes", { descending: false });
       });
   });
 
