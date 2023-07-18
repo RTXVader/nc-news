@@ -7,17 +7,25 @@ exports.gettingTopics = () => {
     return result.rows;
   });
 };
-exports.gettingArticlesId = (article_id) => {
-  if (article_id) {
-    const query = "SELECT * FROM articles WHERE article_id = $1;";
-    return db.query(query, [article_id]).then((result) => {
-      return result.rows[0];
-    });
-  }
-  return Promise.reject({ status: 404, msg: "Bad Request" });
+exports.gettingArticleById = (article_id) => {
+  const query = `
+    SELECT articles.*, COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id;
+  `;
+
+  return db.query(query, [article_id]).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Not Found" });
+    }
+    return result.rows[0];
+  });
 };
+
 exports.gettingArticles = (
-  category_id,
+  topic,
   sort_by = "created_at",
   order = "DESC"
 ) => {
@@ -36,16 +44,15 @@ exports.gettingArticles = (
   }
 
   const queryValues = [];
-
   let query = `
-  SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count
-  FROM articles
-   LEFT JOIN comments ON articles.article_id = comments.article_id
-`;
+    SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+  `;
 
-  if (category_id) {
-    query += ` WHERE created_at = $1;`;
-    queryValues.push(category_id);
+  if (topic) {
+    query += ` WHERE articles.topic = $1`;
+    queryValues.push(topic);
   }
   query += ` GROUP BY articles.article_id`;
 
@@ -57,6 +64,7 @@ exports.gettingArticles = (
     return result.rows;
   });
 };
+
 exports.gettingCommentsByArticleId = (article_id) => {
   const articleQuery = `
     SELECT EXISTS (
@@ -117,17 +125,53 @@ exports.patchingArticleVotes = (articleId, incVotes) => {
     RETURNING *;
   `;
 
-  console.log('model')
+ 
 
   return db.query(query, [incVotes, articleId])
   
     .then((result) => {
-    console.log(result)
-    console.log(result.rows)
-    console.log(result.rows[0])
+   
     if(result.rows.length === 0) {
       return Promise.reject({ status: 404, code: '23503' });
     }
     return result.rows[0]
 });
 };
+exports.deletingCommentById = (commentId) => {
+  const checkQuery = `
+    SELECT EXISTS (
+      SELECT *
+      FROM comments
+      WHERE comment_id = $1
+    );
+  `;
+
+  const deleteQuery = `
+    DELETE FROM comments
+    WHERE comment_id = $1;
+  `;
+
+  
+
+  return db.query(checkQuery, [commentId])
+    .then(({ rows }) => {
+      const commentExists = rows[0].exists;
+
+      if (!commentExists) {
+        throw {
+          status: 404,
+          msg: 'Not Found',
+        };
+      }
+
+      return db.query(deleteQuery, [commentId])
+      
+    });
+};
+exports.gettingUsers = () => {
+  return db.query('SELECT * FROM users').then((result) => {
+    return result.rows;
+  });
+};
+
+

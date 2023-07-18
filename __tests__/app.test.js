@@ -302,3 +302,131 @@ describe('PATCH /api/articles/:article_id', () => {
       });
 })
 })
+
+describe('DELETE /api/comments/:comment_id', () => {
+  it('204: should delete the comment by comment_id', () => {
+    return request(app)
+      .delete('/api/comments/2')
+      .expect(204);
+  });
+
+  it('404: should return Not Found if comment does not exist', () => {
+    return request(app)
+      .delete('/api/comments/999')
+      .expect(404)
+      .then(({ body }) => {
+        
+        expect(body.msg).toBe('Not Found');
+      });
+  });
+});
+describe('GET /api/users', () => {
+  it('200: should get all users', () => {
+    return request(app)
+      .get('/api/users')
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(Array.isArray(users)).toBe(true);
+        users.forEach((user) => {
+          expect(user).toHaveProperty('username');
+          expect(user).toHaveProperty('name');
+          expect(user).toHaveProperty('avatar_url');
+        });
+      });
+  });
+});
+
+describe('GET /api/articles (queries)', () => {
+  it('200: should return all articles', () => {
+    return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true);
+        
+      });
+  });
+
+  it('200: should return articles filtered by topic', () => {
+    return request(app)
+      .get('/api/articles?topic=mitch')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true);
+        
+        articles.forEach((article) => {
+          
+          expect(article.topic).toBe('mitch');
+        });
+      });
+  });
+
+  it('200: should return articles sorted by column (default: date)', () => {
+    return request(app)
+      .get('/api/articles?sort_by=votes')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true);
+        
+        const votes = articles.map((article) => article.votes);
+        expect(votes).toEqual([...votes].sort((a, b) => b - a)); // Ensure descending order
+      });
+  });
+
+  it('200: should return articles sorted in ascending order', () => {
+    return request(app)
+      .get('/api/articles?sort_by=votes&order=ASC')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true);
+        
+        const votes = articles.map((article) => article.votes);
+        expect(votes).toEqual([...votes].sort((a, b) => a - b)); // Ensure ascending order
+      });
+  });
+
+  it('400: should return Bad Request for invalid sort_by parameter', () => {
+    return request(app)
+      .get('/api/articles?sort_by=invalid_column')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+  });
+  it("200: responds with an array of objects sorted by default value of date in descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeSortedBy("votes", { descending: true });
+      });
+    })
+});
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  it("200: should return an article object with comment_count property", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        
+        expect(article).toHaveProperty("comment_count");
+        
+      });
+  });
+
+  it("404: should return Article not found for non-existing article_id", () => {
+    return request(app)
+      .get("/api/articles/999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+});

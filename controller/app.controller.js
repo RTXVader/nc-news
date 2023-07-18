@@ -1,10 +1,12 @@
 const {
   gettingTopics,
-  gettingArticlesId,
+  gettingArticleById,
   gettingArticles,
   gettingCommentsByArticleId,
   postingComments,
-  patchingArticleVotes
+  patchingArticleVotes,
+  deletingCommentById,
+  gettingUsers
 } = require("../modele/app.model");
 const endpoints = require("../endpoints.json");
 const { articleData } = require("../db/data/test-data");
@@ -16,23 +18,28 @@ exports.getTopics = (req, res) => {
 exports.getDescriptions = (req, res) => {
   return res.status(200).send({ description: endpoints });
 };
-exports.getArticleId = (req, res, next) => {
+exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
-  return gettingArticlesId(article_id)
+
+  return gettingArticleById(article_id)
     .then((article) => {
       return res.status(200).send({ article: article });
     })
     .catch(next);
 };
-exports.getArticles = (req, res, next) => {
-  const { sort_by, order, category_id } = req.query;
 
-  return gettingArticles(sort_by, order, category_id)
+exports.getArticles = (req, res, next) => {
+  const { sort_by, order, topic } = req.query;
+  
+
+  return gettingArticles(topic, sort_by, order) 
     .then((articles) => {
+    
       return res.status(200).send({ articles: articles });
     })
     .catch(next);
 };
+
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
 
@@ -60,9 +67,7 @@ exports.patchArticleVotes = (req, res, next) => {
     const { inc_votes } = req.body;
   
    
-  console.log('controller')
-  console.log( article_id, 'articleid')
-  console.log(inc_votes, 'incvotes')
+  
     return patchingArticleVotes(article_id, inc_votes)
       .then((article) => {
         
@@ -70,3 +75,20 @@ exports.patchArticleVotes = (req, res, next) => {
       })
       .catch(next);
   };
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  deletingCommentById(comment_id)
+  
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(next);
+};
+exports.getUsers = (req, res, next) => {
+  return gettingUsers()
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch(next);
+};
