@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const cors = require('cors')
+app.use(cors())
 app.use(express.json());
 const { getTopics, getDescriptions,getArticleById, getArticles, getCommentsByArticleId, postComments, patchArticleVotes, deleteCommentById, getUsers } = require("./controller/app.controller");
 const { handlePsqlErrors, handleDefaultErrors, handleServerErrors } = require('./app.errors')
